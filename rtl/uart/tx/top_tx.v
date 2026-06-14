@@ -29,7 +29,7 @@ module top_tx #(parameter DEPTH=8,
                  input       en,rst,
                  input [7:0] data_in,
                  input [8:0] div,
-                 output      tx,nr_full,nr_empty,full
+                 output      tx,busy,nr_full,nr_empty,full
                 );
 
                  wire empty,rd;
@@ -75,6 +75,7 @@ control_path_tx #(.DEPTH(DEPTH),
                        .div(div),
                        .rd(rd),
                        .ld_data(ld_data),
+                       .busy(busy),
                        .shift_en(shift_en)
                       );
 endmodule

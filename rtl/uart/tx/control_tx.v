@@ -33,9 +33,9 @@ module control_path_tx #(parameter DEPTH=8,
                             input [8:0]div,
                             output reg rd,
                             output reg ld_data,
+                            output reg busy,
                             output reg shift_en
                            );
-                           reg      busy=1'b0;
                            reg [3:0]bit_count=4'b0;
 
 //------------------------------------------------------------------------------
