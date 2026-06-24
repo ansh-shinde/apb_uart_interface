@@ -102,7 +102,7 @@ module apb_uart(
                 pslverr<=0;
             end
         end
-        else if (psel && (paddr<=5'h13) begin
+        else if (psel && (paddr<=5'h13)) begin
             if(!nr_full_tx)begin
             pready<=1;
             pslverr<=0;
@@ -117,7 +117,7 @@ module apb_uart(
             end
             else pready<=0;
         end
-        else if (psel && !((paddr<=5'h13)) begin
+        else if (psel && !(paddr<=5'h13)) begin
             pready<=0;
             pslverr<=1;
         end
