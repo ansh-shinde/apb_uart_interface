@@ -1,4 +1,4 @@
-module apb_uart_dp( 
+module apb_uart( 
     input            preset,
     input            pclk,
     // APB control signals
@@ -7,11 +7,11 @@ module apb_uart_dp(
     input            psel,
     // APB addess and data
     input  [5:0]    paddr,
-    input  [31:0]   pwrdata,
+    input  [31:0]   pwdata,
     // APB response signals
-    output  reg     pready,
-    output  reg     pslverr,
-    output [31:0]   prdata,
+    output  reg         pready,
+    output  reg         pslverr,
+    output  reg [31:0]  prdata,
     // UART signals
     input           rx,
     input           cts,
@@ -29,7 +29,6 @@ module apb_uart_dp(
     reg [31:0]regfile[7:0];
 
     // For byte addressable memory
-    wire [1:0]index;
     wire [2:0]reg_no;
     integer i;
 
@@ -45,15 +44,15 @@ module apb_uart_dp(
          nr_full_rx,
          nr_empty_rx;
 
-    wire [15:0]baud_uart;
+    wire [8:0]baud_uart;
 
     wire [7:0] data_out_rx,
-               parity_en_uart,
-               parity_odd_uart,
-               enable_uart,
-               tx_rx_mode,
                data_in_tx;
 
+    wire parity_en_uart,
+         parity_odd_uart,
+         enable_uart,
+         tx_rx_mode;
 
     top_tx transmitter(
            .clk(pclk),
@@ -88,7 +87,6 @@ module apb_uart_dp(
 
     assign reg_no=paddr[5:2];
 
-
 //=====================================================================================
 // this block checks if preset is on and resets
 // if psel is active then read/write takes place depending on pwrite
@@ -104,22 +102,22 @@ module apb_uart_dp(
                 pslverr<=0;
             end
         end
-        else if (psel && ((reg_no<=7)&&(index<=3))) begin
+        else if (psel && (paddr<=5'h13) begin
             if(!nr_full_tx)begin
-            ready<=1;
-            plsverr<=0;
+            pready<=1;
+            pslverr<=0;
             if (psel && penable && pwrite) begin
-                regfile[reg_no][index]<=pwdata;
+                regfile[reg_no]<=pwdata;
                 pready<=1;
             end
             else if(psel && penable && !pwrite)begin
-                prdata<=regfile[reg_no][index];
+                prdata<=regfile[reg_no];
                 pready<=1;
             end
             end
             else pready<=0;
         end
-        else if (psel && !((reg_no<=7)&&(index<=3))) begin
+        else if (psel && !((paddr<=5'h13)) begin
             pready<=0;
             pslverr<=1;
         end
@@ -130,19 +128,19 @@ module apb_uart_dp(
 // This block connects the regs to ports of Uart tx and rx through wires 
 //=============================================================================================
 
-    assign  enable_uart     = regfile[0][7:0]; 
-    assign  tx_rx_mode      = regfile[0][8:15]; 
-    assign  parity_en_uart  = regfile[0][23:16]; 
-    assign  parity_odd_uart = regfile[0][31:24]; 
-    assign  baud_uart       = {regfile[3][15:8],regfile[3][7:0]}; 
+    assign  enable_uart     = regfile[0][0]; 
+    assign  tx_rx_mode      = regfile[0][8]; 
+    assign  parity_en_uart  = regfile[0][16]; 
+    assign  parity_odd_uart = regfile[0][24]; 
+    assign  baud_uart       = regfile[3][8:0]; 
     assign  data_in_tx      = regfile[4][7:0]; 
 
     always@(posedge pclk)begin
         if (psel && penable) begin
-            regfile[1][7:0]   = parity_err;
-            regfile[1][15:8]  = frame_err;
-            regfile[1][23:16] = overrun_err;
-            regfile[1][31:24] = busy_tx;
+            regfile[1][0]     = parity_err;
+            regfile[1][8]     = frame_err;
+            regfile[1][16]    = overrun_err;
+            regfile[1][24]    = busy_tx;
             regfile[5][7:0]   = data_out_rx;
         end
     end
