@@ -192,7 +192,7 @@ module data_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
 // Oversampling Baud Counter
 //------------------------------------------------------------------------------
-                       baud_counter bc1(
+                       baud_counter_rx bc1(
                                         .div_baud(div),
                                         .clk_baud(clk),
                                         .rst_baud(rst),
@@ -204,7 +204,7 @@ module data_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
 // UART Parity Checker
 //------------------------------------------------------------------------------
-                       parity p1 (
+                       parity_rx p1 (
                                   .in(data_byte),
                                   .parity_en_parity(parity_en),
                                   .parity_odd_parity(parity_odd),
@@ -214,7 +214,7 @@ module data_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
 // UART Deserializer (SIPO)
 //------------------------------------------------------------------------------
-                       sipo po1(
+                       sipo_rx po1(
                                 .serial_in(sync_rx),
                                 .shift_en_sipo(sample_bit),
                                 .rst_sipo(rst),
@@ -237,7 +237,7 @@ endmodule
 // - Tracks UART bit positions
 // - Oversampling rate derived from divider input
 //------------------------------------------------------------------------------
-module baud_counter(
+module baud_counter_rx(
                     input      [8:0]div_baud,
                     input           clk_baud,
                     input           rst_baud,
@@ -285,7 +285,7 @@ endmodule
 // - Odd parity support
 // - XOR-based parity calculation
 //------------------------------------------------------------------------------
-module parity(
+module parity_rx(
               input [7:0]in,
               input      parity_en_parity,
               input      parity_odd_parity,
@@ -315,7 +315,7 @@ endmodule
 // - LSB received first
 // - Current implementation uses fixed frame length
 //------------------------------------------------------------------------------
-module sipo(
+module sipo_rx(
             input            serial_in,
             input            shift_en_sipo,  
             input            rst_sipo,

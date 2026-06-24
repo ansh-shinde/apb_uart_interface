@@ -1,4 +1,4 @@
-module top #(parameter DEPTH=8, 
+module top_fifo_rx #(parameter DEPTH=8, 
                         WIDTH=8,
                         N=$clog2(DEPTH)
              )(
@@ -9,7 +9,7 @@ module top #(parameter DEPTH=8,
               );
     wire [N:0] gray_adrs_wr,gray_adrs_rd,bin_adrs_wr,bin_adrs_rd;
     wire rd_en,wr_en;
-    data #(.DEPTH(DEPTH),
+    data_rx #(.DEPTH(DEPTH),
            .WIDTH(WIDTH)
           )dat(
                .clk_wr(clk_wr),
@@ -31,7 +31,7 @@ module top #(parameter DEPTH=8,
                .bin_adrs_rd(bin_adrs_rd)
               );
     
-     control #(.DEPTH(DEPTH),
+     control_rx #(.DEPTH(DEPTH),
                .WIDTH(WIDTH)
               )ctrl(
                     .wr(wr),

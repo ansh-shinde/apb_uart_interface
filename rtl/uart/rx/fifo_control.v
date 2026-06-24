@@ -1,4 +1,4 @@
-module control #(parameter DEPTH=8, 
+module control_rx #(parameter DEPTH=8, 
                         WIDTH=8,
                         N=$clog2(DEPTH)
                 )(

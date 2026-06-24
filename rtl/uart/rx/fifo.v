@@ -1,4 +1,4 @@
-module data #(parameter DEPTH=8, 
+module data_rx #(parameter DEPTH=8, 
                         WIDTH=8,
                         N=$clog2(DEPTH)
               )(
@@ -8,7 +8,7 @@ module data #(parameter DEPTH=8,
                 output [N:0]       gray_adrs_wr,gray_adrs_rd, bin_adrs_wr,bin_adrs_rd
                 );
                    
-              memo #(.DEPTH(DEPTH),
+              memo_rx #(.DEPTH(DEPTH),
                      .WIDTH(WIDTH)
                      )str(
                           .data_in(data_in),
@@ -27,7 +27,7 @@ module data #(parameter DEPTH=8,
                           .rd_en(rd_en)
                          );
 
-             wr_ptr  #(.DEPTH(DEPTH),
+             wr_ptr_rx  #(.DEPTH(DEPTH),
                      .WIDTH(WIDTH)
                      )ptr1(
                            .wr(wr),
@@ -40,7 +40,7 @@ module data #(parameter DEPTH=8,
                            .gray_adrs_wr(gray_adrs_wr)
                           );
 
-             rd_ptr  #(.DEPTH(DEPTH),
+             rd_ptr_rx  #(.DEPTH(DEPTH),
                      .WIDTH(WIDTH)
                      )ptr2(
                            .rd(rd),
@@ -55,7 +55,7 @@ module data #(parameter DEPTH=8,
 
 endmodule
 
-module memo #(parameter DEPTH=8, 
+module memo_rx #(parameter DEPTH=8, 
                         WIDTH=8,
                         N=$clog2(DEPTH)
               )(
@@ -81,7 +81,7 @@ module memo #(parameter DEPTH=8,
 endmodule
 
        
-module wr_ptr#(
+module wr_ptr_rx#(
          parameter DEPTH=8, 
                    WIDTH=8,
                    N=$clog2(DEPTH)
@@ -105,7 +105,7 @@ module wr_ptr#(
 endmodule
 
 
-module rd_ptr#(
+module rd_ptr_rx#(
          parameter DEPTH=8, 
                    WIDTH=8,
                    N=$clog2(DEPTH)
