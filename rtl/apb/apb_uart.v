@@ -6,7 +6,7 @@ module apb_uart(
     input            pwrite,
     input            psel,
     // APB addess and data
-    input  [5:0]    paddr,
+    input  [4:0]    paddr,
     input  [31:0]   pwdata,
     // APB response signals
     output  reg         pready,
@@ -16,10 +16,12 @@ module apb_uart(
     input           rx,
     input           cts,
     output   reg    rts,
+    output   reg    intrr_rx,
+    output   reg    intrr_tx,
     output          tx
 );
     // 8 registers of 32 bit width
-    // address range 0x00 - 0x1F
+    // address range 0x00 - 0x13
     // byte addressable memory 
     // control_reg: 0x00
     // status_reg : 0x04
@@ -54,9 +56,11 @@ module apb_uart(
          enable_uart,
          tx_rx_mode;
 
+     reg fifo_tx_wr;
+
     top_tx transmitter(
            .clk(pclk),
-           .wr(pwrite),
+           .wr(fifo_tx_wr),
            .en(penable),
            .rst(preset),
            .tx(tx),
@@ -66,7 +70,8 @@ module apb_uart(
            .parity_odd(parity_odd_uart),
            .nr_empty(nr_empty_tx),
            .div(baud_uart),
-           .data_in(data_in_tx) 
+           .data_in(data_in_tx),
+           .busy(busy_tx)
     );
 
     top_rx receiver(
@@ -85,7 +90,7 @@ module apb_uart(
              .overrun_error(overrun_err)
             );
 
-    assign reg_no=paddr[5:2];
+    assign reg_no=paddr[4:2];
 
 //=====================================================================================
 // this block checks if preset is on and resets
@@ -94,35 +99,41 @@ module apb_uart(
 // wait for tx to finish transmitting
 //======================================================================================
 
-    always@(posedge pclk or posedge preset)begin  
+    always@(posedge pclk or posedge preset)begin 
+        pready<=0;
+        pslverr<=0;
+        fifo_tx_wr<=0;
         if (preset) begin
             for(i=0;i<8;i=i+1)begin
                 regfile[i]<=32'b0;
-                pready<=0;
-                pslverr<=0;
             end
+            fifo_tx_wr<= 0;
+            pready    <= 0;
+            pslverr   <= 0;
         end
-        else if (psel && (paddr<=5'h13)) begin
-            if(!nr_full_tx)begin
-            pready<=1;
-            pslverr<=0;
-            if (psel && penable && pwrite) begin
+        else if (psel && penable && (reg_no<=4)) begin
+            if (!nr_full_tx) begin
+                if (pwrite) begin
                 regfile[reg_no]<=pwdata;
+                fifo_tx_wr<=1;
                 pready<=1;
+                end
+                else begin
+                    prdata<=regfile[reg_no];
+                    pready<=1;
+                end
             end
-            else if(psel && penable && !pwrite)begin
-                prdata<=regfile[reg_no];
-                pready<=1;
-            end
-            end
-            else pready<=0;
+            else pready<=0; 
         end
-        else if (psel && !(paddr<=5'h13)) begin
+        else if (psel && penable && !(reg_no<=4)) begin
+                pready<=0;
+                pslverr<=1;
+            end
+        else begin
             pready<=0;
-            pslverr<=1;
+            pslverr<=0;
         end
-        end
-
+    end
 
 //============================================================================================
 // This block connects the regs to ports of Uart tx and rx through wires 
@@ -132,35 +143,48 @@ module apb_uart(
     assign  tx_rx_mode      = regfile[0][8]; 
     assign  parity_en_uart  = regfile[0][16]; 
     assign  parity_odd_uart = regfile[0][24]; 
-    assign  baud_uart       = regfile[3][8:0]; 
-    assign  data_in_tx      = regfile[4][7:0]; 
+    assign  baud_uart       = regfile[2][8:0]; 
+    assign  data_in_tx      = regfile[3][7:0]; 
 
     always@(posedge pclk)begin
-        if (psel && penable) begin
-            regfile[1][0]     = parity_err;
-            regfile[1][8]     = frame_err;
-            regfile[1][16]    = overrun_err;
-            regfile[1][24]    = busy_tx;
-            regfile[5][7:0]   = data_out_rx;
-        end
+            regfile[1][0]     <= parity_err;
+            regfile[1][8]     <= frame_err;
+            regfile[1][16]    <= overrun_err;
+            regfile[1][24]    <= busy_tx;
+            regfile[4][7:0]   <= data_out_rx;
     end
 
 
 //======================================================================================================
 // This block checks the near full of receiver and generates request to send
-//========================================================================================================
+// and interrupt signal indicating rx fifo if full
+//======================================================================================================
 
     always@(posedge pclk or posedge preset)begin
+        intrr_rx<=0;
         if (preset) begin
             rts<=0;
+            intrr_rx<=0;
         end
-        else if (penable) begin
-            if (nr_full_rx) begin
-                rts=0;
+        else if (nr_full_rx) begin
+                rts<=0;
+                intrr_rx<=1;
             end
-            else rts=1;
+            else rts<=1;
+        end
+
+//======================================================================================================
+// Interrupt signal for tx fifo
+//======================================================================================================
+
+    always@(posedge pclk or posedge preset)begin
+        intrr_tx<=0;
+        if (preset) begin
+            intrr_tx<=0;
+        end
+        else if (nr_empty_tx) begin
+            intrr_tx<=1;
         end
     end
-
 
 endmodule
