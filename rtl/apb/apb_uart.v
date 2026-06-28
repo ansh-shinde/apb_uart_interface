@@ -56,12 +56,13 @@ module apb_uart(
          enable_uart,
          tx_rx_mode;
 
-     reg fifo_tx_wr;
+    wire fifo_tx_wr;
+    wire tx_enable,rx_enable;
 
     top_tx transmitter(
            .clk(pclk),
            .wr(fifo_tx_wr),
-           .en(penable),
+           .en(tx_enable),
            .rst(preset),
            .tx(tx),
            .full(full_tx),
@@ -77,7 +78,7 @@ module apb_uart(
     top_rx receiver(
              .clk(pclk),
              .rst(preset),
-             .en(penable),
+             .en(rx_enable),
              .rx(rx),
              .parity_en(parity_en_uart),
              .parity_odd(parity_odd_uart),
@@ -90,7 +91,12 @@ module apb_uart(
              .overrun_error(overrun_err)
             );
 
-    assign reg_no=paddr[4:2];
+    assign reg_no=paddr[4:2];   // Address decoding into reg numbers
+
+    assign tx_enable = cts && tx_rx_mode;  // Enabling tx and rx depending on wr/rd and cts/rts
+    assign rx_enable = rts && !tx_rx_mode;
+
+    assign fifo_tx_wr= psel && pwrite && penable && (reg_no==3); // enable fifo wr only when addr is reg3 and wr to avoide latching every cycle
 
 //=====================================================================================
 // this block checks if preset is on and resets
@@ -102,12 +108,10 @@ module apb_uart(
     always@(posedge pclk or posedge preset)begin 
         pready<=0;
         pslverr<=0;
-        fifo_tx_wr<=0;
         if (preset) begin
             for(i=0;i<8;i=i+1)begin
                 regfile[i]<=32'b0;
             end
-            fifo_tx_wr<= 0;
             pready    <= 0;
             pslverr   <= 0;
         end
@@ -115,7 +119,6 @@ module apb_uart(
             if (!nr_full_tx) begin
                 if (pwrite) begin
                 regfile[reg_no]<=pwdata;
-                fifo_tx_wr<=1;
                 pready<=1;
                 end
                 else begin

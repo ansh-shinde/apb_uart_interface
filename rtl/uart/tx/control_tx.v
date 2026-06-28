@@ -74,9 +74,9 @@ module control_path_tx #(parameter DEPTH=8,
                                   ld_data  <= 0;
                                   rd       <= 0;
                                   shift_en <= 0;
-                          if(!empty && !busy)begin
-                          ld_data<=1'b1;
+                          if(!empty && !busy && count==9'd3)begin
                           rd<=1'b1;
+                          ld_data<=1;
                           end
                           else if((count==div-1)&& busy)begin
                           shift_en<=1'b1;

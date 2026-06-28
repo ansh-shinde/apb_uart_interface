@@ -57,7 +57,7 @@ initial begin
     pwrite=0;
     psel=0;
     rx=0;
-    cts=0;
+    cts=1;
     paddr=6'h00;
     pwdata=32'h00000000;
     $dumpfile("apb_uart.vcd");
@@ -88,7 +88,7 @@ initial begin
     $dumpvars(0,dut.receiver.dat.fifo.dat.str.regfile[5]);
     $dumpvars(0,dut.receiver.dat.fifo.dat.str.regfile[6]);
     $dumpvars(0,dut.receiver.dat.fifo.dat.str.regfile[7]);
-   #10000 $finish;
+   #400000 $finish;
 end
 
 initial begin
@@ -99,11 +99,19 @@ initial begin
     #10 pwrite=1;
     #20 push(5'h15,32'h01010101); // invalid address 
     #20 push(5'h00,32'h01010101); // en=1, tx/rx=1(tx on), parity_en=1, odd/even=1
-    #2 $display("config : en = %b | tx/rx = %b | parity_en = %b | odd/even = %b | time : %d ",dut.regfile[0][0],dut.regfile[0][8],dut.regfile[0][16],dut.regfile[0][24],$time);
-    #18 push(5'h08,32'h1B2);      // baud rate set to 115200
-    #2 $display("baud : div = %d | time = %d ",dut.regfile[3][8:0],$time);
-    #18  push(5'h0C,32'h11);       // data for transmission
-    end
+    #4 $display("config : en = %b | tx/rx = %b | parity_en = %b | odd/even = %b | time : %d ",dut.regfile[0][0],dut.regfile[0][8],dut.regfile[0][16],dut.regfile[0][24],$time);
+    #17 push(5'h08,32'h1B2);      // baud rate set to 115200
+    #4 $display("baud : div = %d | time = %d ",dut.regfile[3][8:0],$time);
+    #15  push(5'h0C,32'h11);       // data for transmission
+    #10  push(5'h0C,32'h22);
+    #10  push(5'h0C,32'h33);
+    #10  push(5'h0C,32'h44);
+    #10  push(5'h0C,32'h55);
+    #10  push(5'h0C,32'h66);
+    #10  push(5'h0C,32'h77);
+    #20   penable=0;
+
+end
     
 
 endmodule

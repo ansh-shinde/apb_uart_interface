@@ -117,6 +117,7 @@ module data_path_tx #(parameter DEPTH=8,
                         .rst(rst),
                         .clk(clk),
                         .parity_bit(parity_w),
+                        .count(count),
                         .serial_out(tx)
                        );
 
@@ -182,6 +183,7 @@ module piso(
             input        rst,
             input        clk,
             input        parity_bit,
+            input [8:0]  count,
             output       serial_out
            );
             reg    [10:0]shift_reg;

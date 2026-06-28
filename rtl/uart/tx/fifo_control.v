@@ -100,7 +100,7 @@ end
 // READ ENABLE
 // ================================
 always @(posedge clk_rd) begin
-    rd_en <= en && !empty && !nr_empty;
+    rd_en <= en && !empty ;
 end
 endmodule
 
