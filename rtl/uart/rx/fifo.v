@@ -59,7 +59,7 @@ module memo_rx #(parameter DEPTH=8,
                         WIDTH=8,
                         N=$clog2(DEPTH)
               )(
-                input                  clk_rd,clk_wr,wr,rd,full,nr_full,empty,nr_empty,rd_en,wr_en,
+                input                  clk_rd,clk_wr,clr,wr,rd,full,nr_full,empty,nr_empty,rd_en,wr_en,
                 input      [WIDTH-1:0] data_in,
                 output reg [WIDTH-1:0] data_out,
                 input          [N-1:0]   adrs_rd,
@@ -67,14 +67,23 @@ module memo_rx #(parameter DEPTH=8,
                 );
 
                reg [WIDTH-1:0] regfile[0:DEPTH-1];
+               integer i;
 
-              always@(posedge clk_rd)begin
-              if(rd_en && rd )begin
+              always@(posedge clk_rd or posedge clr)begin
+              if(clr)begin
+              data_out<=0;    
+              end
+              else if(rd_en && rd )begin
               data_out<=regfile[adrs_rd];
               end
               end
-              always@(posedge clk_wr)begin
-              if(wr_en && wr )begin
+              always@(posedge clk_wr or posedge clr)begin
+              if(clr)begin
+              for (i = 0; i < DEPTH; i=i+1 begin
+                  regfile[i]<=0;
+              end    
+              end
+              else if(wr_en && wr )begin
               regfile[adrs_wr]<=data_in;
               end
               end
