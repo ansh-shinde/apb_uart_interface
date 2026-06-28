@@ -53,10 +53,10 @@ module apb_uart(
 
     wire parity_en_uart,
          parity_odd_uart,
-         enable_uart,
-         tx_rx_mode;
+         tx_mode,
+         rx_mode;
 
-    wire fifo_tx_wr;
+    wire fifo_tx_wr,fifo_rx_rd;
     wire tx_enable,rx_enable;
 
     top_tx transmitter(
@@ -79,6 +79,7 @@ module apb_uart(
              .clk(pclk),
              .rst(preset),
              .en(rx_enable),
+             .rd(!pwrite),
              .rx(rx),
              .parity_en(parity_en_uart),
              .parity_odd(parity_odd_uart),
@@ -93,10 +94,11 @@ module apb_uart(
 
     assign reg_no=paddr[4:2];   // Address decoding into reg numbers
 
-    assign tx_enable = cts && tx_rx_mode;  // Enabling tx and rx depending on wr/rd and cts/rts
-    assign rx_enable = rts && !tx_rx_mode;
+    assign tx_enable = cts && tx_mode;  // Enabling tx and rx depending on wr/rd and cts/rts
+    assign rx_enable = rts && rx_mode;
 
-    assign fifo_tx_wr= psel && pwrite && penable && (reg_no==3); // enable fifo wr only when addr is reg3 and wr to avoide latching every cycle
+    assign fifo_tx_wr = psel && pwrite && penable && (reg_no == 3);  // enable fifo wr only when addr is reg3 and pwrite==1 to avoide writing every cycle
+    assign fifo_rx_rd = psel && !pwrite && penable && (reg_no == 4); // enable fifo rd only when addr is reg4 and pwrite==0 to avoide reading every cycle
 
 //=====================================================================================
 // this block checks if preset is on and resets
@@ -142,8 +144,8 @@ module apb_uart(
 // This block connects the regs to ports of Uart tx and rx through wires 
 //=============================================================================================
 
-    assign  enable_uart     = regfile[0][0]; 
-    assign  tx_rx_mode      = regfile[0][8]; 
+    assign  tx_mode         = regfile[0][0]; 
+    assign  rx_mode         = regfile[0][8]; 
     assign  parity_en_uart  = regfile[0][16]; 
     assign  parity_odd_uart = regfile[0][24]; 
     assign  baud_uart       = regfile[2][8:0]; 
