@@ -1,0 +1,57 @@
+Warning: unknown field nets.
+Startpoint: preset (input port clocked by pclk)
+Endpoint: _1505_ (removal check against rising-edge clock pclk)
+Path Group: asynchronous
+Path Type: min
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              2.0000    2.0000 v input external delay
+   272    0.7559    0.0000    0.0000    2.0000 v preset (in)
+                    0.0000    0.0000    2.0000 v _1466_/A (sky130_fd_sc_hd__clkinv_1)
+     1    0.0036    0.0278    0.0261    2.0261 ^ _1466_/Y (sky130_fd_sc_hd__clkinv_1)
+                    0.0278    0.0000    2.0261 ^ _1505_/RESET_B (sky130_fd_sc_hd__dfrtp_1)
+                                        2.0261   data arrival time
+
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              0.0000    0.0000   clock reconvergence pessimism
+                                        0.0000 ^ _1505_/CLK (sky130_fd_sc_hd__dfrtp_1)
+                              0.3032    0.3032   library removal time
+                                        0.3032   data required time
+-------------------------------------------------------------------------------------
+                                        0.3032   data required time
+                                       -2.0261   data arrival time
+-------------------------------------------------------------------------------------
+                                        1.7228   slack (MET)
+
+
+Startpoint: receiver/dat/_167_ (rising edge-triggered flip-flop clocked by pclk)
+Endpoint: receiver/dat/_168_ (rising edge-triggered flip-flop clocked by pclk)
+Path Group: pclk
+Path Type: min
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                    0.0000    0.0000    0.0000 ^ receiver/dat/_167_/CLK (sky130_fd_sc_hd__dfxtp_1)
+     1    0.0017    0.0329    0.2749    0.2749 ^ receiver/dat/_167_/Q (sky130_fd_sc_hd__dfxtp_1)
+                    0.0329    0.0000    0.2749 ^ receiver/dat/_168_/D (sky130_fd_sc_hd__dfxtp_1)
+                                        0.2749   data arrival time
+
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              0.0000    0.0000   clock reconvergence pessimism
+                                        0.0000 ^ receiver/dat/_168_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                             -0.0346   -0.0346   library hold time
+                                       -0.0346   data required time
+-------------------------------------------------------------------------------------
+                                       -0.0346   data required time
+                                       -0.2749   data arrival time
+-------------------------------------------------------------------------------------
+                                        0.3096   slack (MET)
+
+

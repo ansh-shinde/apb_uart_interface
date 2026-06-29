@@ -113,7 +113,6 @@ module data_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
                        
                        always@(posedge clk or posedge rst)begin
-                       stop<=0;
                        if(rst)begin
                        stop<=1'b0;
                        end
@@ -122,6 +121,7 @@ module data_path_rx #(parameter DEPTH=8,
                        stop<=raw_byte[10];
                        end
                        else if(clr_shiftreg) stop<=1'b0;
+                       else stop<=0;
                        end
                        end
 
@@ -354,17 +354,19 @@ module sipo_rx(
             end
 
             always@(posedge clk_sipo or posedge rst_sipo)begin
-            start_check<=0;
             if(rst_sipo)begin
             shift_reg_sipo<=11'b0;
+            start_check<=0;
             end
             else if(clr_shiftreg_sipo)begin
             shift_reg_sipo <= 11'b0;
+            start_check<=0;
             end
             else if(shift_pulse && (bit_count_sipo<11))begin
             shift_reg_sipo<={serial_in,shift_reg_sipo[10:1]};
             start_check<=1;
             end
+            else start_check<=0;
             end
 endmodule 
             

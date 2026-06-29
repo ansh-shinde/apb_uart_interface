@@ -1,0 +1,63 @@
+Warning: unknown field nets.
+Startpoint: preset (input port clocked by pclk)
+Endpoint: receiver/ctrl/_165_ (recovery check against rising-edge clock pclk)
+Path Group: asynchronous
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              2.0000    2.0000 v input external delay
+   272    0.7559    0.0000    0.0000    2.0000 v preset (in)
+                    0.0000    0.0000    2.0000 v receiver/ctrl/_163_/A (sky130_fd_sc_hd__clkinv_1)
+     1    0.0034    0.0266    0.0252    2.0252 ^ receiver/ctrl/_163_/Y (sky130_fd_sc_hd__clkinv_1)
+                    0.0266    0.0000    2.0252 ^ receiver/ctrl/_165_/SET_B (sky130_fd_sc_hd__dfstp_2)
+                                        2.0252   data arrival time
+
+                    0.0000   10.0000   10.0000   clock pclk (rise edge)
+                              0.0000   10.0000   clock network delay (ideal)
+                              0.0000   10.0000   clock reconvergence pessimism
+                                       10.0000 ^ receiver/ctrl/_165_/CLK (sky130_fd_sc_hd__dfstp_2)
+                              0.1254   10.1254   library recovery time
+                                       10.1254   data required time
+-------------------------------------------------------------------------------------
+                                       10.1254   data required time
+                                       -2.0252   data arrival time
+-------------------------------------------------------------------------------------
+                                        8.1002   slack (MET)
+
+
+Startpoint: paddr[3] (input port clocked by pclk)
+Endpoint: _1554_ (rising edge-triggered flip-flop clocked by pclk)
+Path Group: pclk
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock pclk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              2.0000    2.0000 v input external delay
+     9    0.0180    0.0000    0.0000    2.0000 v paddr[3] (in)
+                    0.0000    0.0000    2.0000 v _1149_/A1 (sky130_fd_sc_hd__o21ai_0)
+    36    0.0837    2.3888    1.7808    3.7808 ^ _1149_/Y (sky130_fd_sc_hd__o21ai_0)
+                    2.3888    0.0000    3.7808 ^ _1157_/B (sky130_fd_sc_hd__nand4_1)
+    32    0.1051    1.3454    1.6248    5.4056 v _1157_/Y (sky130_fd_sc_hd__nand4_1)
+                    1.3454    0.0000    5.4056 v _1193_/S (sky130_fd_sc_hd__mux2_1)
+     1    0.0019    0.0647    0.7153    6.1209 v _1193_/X (sky130_fd_sc_hd__mux2_1)
+                    0.0647    0.0000    6.1209 v _1554_/D (sky130_fd_sc_hd__dfrtp_1)
+                                        6.1209   data arrival time
+
+                    0.0000   10.0000   10.0000   clock pclk (rise edge)
+                              0.0000   10.0000   clock network delay (ideal)
+                              0.0000   10.0000   clock reconvergence pessimism
+                                       10.0000 ^ _1554_/CLK (sky130_fd_sc_hd__dfrtp_1)
+                             -0.1332    9.8668   library setup time
+                                        9.8668   data required time
+-------------------------------------------------------------------------------------
+                                        9.8668   data required time
+                                       -6.1209   data arrival time
+-------------------------------------------------------------------------------------
+                                        3.7459   slack (MET)
+
+
