@@ -111,17 +111,22 @@ module apb_uart(
         pready<=0;
         pslverr<=0;
         if (preset) begin
-            for(i=0;i<8;i=i+1)begin
-                regfile[i]<=32'b0;
-            end
+            regfile[0]<=32'b0;
+            regfile[2]<=32'b0;
+            regfile[3]<=32'b0;
             pready    <= 0;
             pslverr   <= 0;
         end
         else if (psel && penable && (reg_no<=4)) begin
             if (!nr_full_tx) begin
                 if (pwrite) begin
-                regfile[reg_no]<=pwdata;
-                pready<=1;
+                   case (reg_no)
+                        3'd0: regfile[0] <= pwdata;
+                        3'd2: regfile[2] <= pwdata;
+                        3'd3: regfile[3] <= pwdata;
+                        default: ;
+                        endcase 
+                    pready<=1;
                 end
                 else begin
                     prdata<=regfile[reg_no];
@@ -152,6 +157,13 @@ module apb_uart(
     assign  data_in_tx      = regfile[3][7:0]; 
 
     always@(posedge pclk)begin
+        if (preset) begin
+            regfile[1][0]     <= 0;
+            regfile[1][8]     <= 0;
+            regfile[1][16]    <= 0;
+            regfile[1][24]    <= 0;
+            regfile[4][7:0]   <= 8'b0;
+        end
             regfile[1][0]     <= parity_err;
             regfile[1][8]     <= frame_err;
             regfile[1][16]    <= overrun_err;
