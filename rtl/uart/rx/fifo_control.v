@@ -48,7 +48,7 @@ end
 
 // WRITE ENABLE
 always @(posedge clk_wr) begin
-    wr_en <= en && !full && !nr_full;
+    wr_en <= en && !full;
 end
 
 // ================================
@@ -86,7 +86,7 @@ end
 // EMPTY
 // ================================
 always @(posedge clk_rd) begin
-    empty <= (gray_adrs_rd == g_syn_wr);
+    empty <= (gray_nxt_rd == g_syn_wr);
 end
 
 // ================================
@@ -100,7 +100,7 @@ end
 // READ ENABLE
 // ================================
 always @(posedge clk_rd) begin
-    rd_en <= en && !empty && !nr_empty;
+    rd_en <= en && !empty;
 end
 endmodule
 

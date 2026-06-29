@@ -17,6 +17,7 @@ module data_rx #(parameter DEPTH=8,
                           .clk_wr(clk_wr),
                           .wr(wr),
                           .rd(rd),
+                          .clr(clr),
                           .adrs_rd(bin_adrs_rd[N-1:0]),
                           .adrs_wr(bin_adrs_wr[N-1:0]),
                           .full(full),
@@ -79,7 +80,7 @@ module memo_rx #(parameter DEPTH=8,
               end
               always@(posedge clk_wr or posedge clr)begin
               if(clr)begin
-              for (i = 0; i < DEPTH; i=i+1 begin
+              for (i = 0; i < DEPTH; i=i+1) begin
                   regfile[i]<=0;
               end    
               end

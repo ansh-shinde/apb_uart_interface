@@ -49,7 +49,7 @@ module control_path_rx #(parameter DEPTH=8,
                         input calculated_parity,
                         input parity_bit,
                         input edge_detect,
-                        output reg rd,
+                        input [10:0]raw_byte,
                         output reg wr,
                         output reg sample_bit,
                         output reg clr_shiftreg,
@@ -183,7 +183,6 @@ module control_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
                         always@(*)begin
                             // Default assignments
-                                   rd             = 0;
                                    wr             = 0;
                                    sample_bit     = 0;
                                    clr_shiftreg   = 0;
@@ -193,7 +192,6 @@ module control_path_rx #(parameter DEPTH=8,
                                    latch          = 0;
                         case(ps)
                         IDLE:begin
-                             rd=0;
                              wr=0;
                              sample_bit=0;
                              clr_shiftreg=0;
@@ -211,7 +209,7 @@ module control_path_rx #(parameter DEPTH=8,
                                end  
                                end
                         FRAME:begin
-                               if(stop)begin
+                               if(raw_byte[10])begin
                                frame_error=0;
                                latch=1;
                                clr_shiftreg=0;
@@ -243,23 +241,18 @@ module control_path_rx #(parameter DEPTH=8,
                         PUSH :begin
                              if(overrun_error==1)begin
                              wr=0;
-                             rd=1;
                              end
                              else if(empty)begin
-                             rd=0;
                              wr=1;
                              end
                              else if(!full && !empty)begin
                              wr=1;
-                             rd=1;
                              end
                              else begin
                              wr=0;
-                             rd=0;
                              end
                              end
                        default:begin
-                               rd=0;
                                wr=0;
                                sample_bit=0;
                                clr_shiftreg=0;

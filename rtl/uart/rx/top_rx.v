@@ -37,6 +37,7 @@ module top_rx #(parameter DEPTH=8,
                  input rst,
                  input en,
                  input rx,
+                 input rd,
                  input parity_en,
                  input parity_odd,
                  input [8:0]div,
@@ -47,8 +48,9 @@ module top_rx #(parameter DEPTH=8,
                  output parity_error,
                  output overrun_error
                 );
-                wire start,stop,full,empty,calculated_parity,parity_bit,rd,wr,sample_bit,clr_shiftreg,latch,edge_detect;
+                wire start,stop,full,empty,calculated_parity,parity_bit,wr,sample_bit,clr_shiftreg,latch,edge_detect;
                 wire [3:0]bit_count,sample_count;
+                wire [10:0]raw_byte;
 
 //------------------------------------------------------------------------------
 // UART Receiver Control Path
@@ -70,7 +72,6 @@ module top_rx #(parameter DEPTH=8,
                                         .empty(empty),
                                         .calculated_parity(calculated_parity),
                                         .parity_bit(parity_bit),
-                                        .rd(rd),
                                         .wr(wr),
                                         .sample_bit(sample_bit),
                                         .clr_shiftreg(clr_shiftreg),
@@ -78,7 +79,8 @@ module top_rx #(parameter DEPTH=8,
                                         .parity_error(parity_error),
                                         .overrun_error(overrun_error),
                                         .latch(latch),
-                                        .edge_detect(edge_detect)
+                                        .edge_detect(edge_detect),
+                                        .raw_byte(raw_byte)
                                         );
 
 //------------------------------------------------------------------------------
@@ -110,7 +112,8 @@ module top_rx #(parameter DEPTH=8,
                                         .nr_empty(nr_empty),
                                         .nr_full(nr_full),
                                         .data_out(data_out),
-                                        .en_counter(edge_detect)
+                                        .en_counter(edge_detect),
+                                        .raw_byte(raw_byte)
                                         );
 
 endmodule

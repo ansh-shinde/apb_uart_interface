@@ -79,7 +79,7 @@ module apb_uart(
              .clk(pclk),
              .rst(preset),
              .en(rx_enable),
-             .rd(!pwrite),
+             .rd(fifo_rx_rd),
              .rx(rx),
              .parity_en(parity_en_uart),
              .parity_odd(parity_odd_uart),

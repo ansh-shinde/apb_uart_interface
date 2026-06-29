@@ -70,11 +70,16 @@ module data_path_rx #(parameter DEPTH=8,
                         output reg en_counter,
                         output calculated_parity,
                         output reg parity_bit,
-                        output [7:0]data_out
+                        output [7:0]data_out,
+                        output [10:0]raw_byte  // needed in control path to check the stop bit is valid or not
                        );
-                       wire [10:0]raw_byte;
                        reg [7:0]data_byte;
-                       reg sync,sync_rx;
+                       reg sync,sync_rx,start_check,start_check1,start_check2;
+
+                       always@(posedge clk)begin
+                       start_check1<=start_check;
+                       start_check2<=start_check1;   // delaying the check 1 cycle to avoide checking right at the change
+                       end
                     
 //------------------------------------------------------------------------------
 // Start-Bit Detection
@@ -87,10 +92,10 @@ module data_path_rx #(parameter DEPTH=8,
                        start<=1'b0;
                        end
                        else if(en)begin
-                       if((bit_count==0) && sample_bit)begin
-                       if(raw_byte[10]==0)begin
-                       start<=1'b1;
-                       end
+                       if((bit_count==0) && start_check2)begin  // Using start_check instead of sample_bit because the shifting happens after sample_bit
+                       if(raw_byte[10]==0)begin                // so the old values of raw_byte[10](which is stop bit of previous frame)is getting checked as start bit 
+                       start<=1'b1;                            // hence the condition will be false as start_bit=0 & stop_bit=1 and it will not trigger the start 
+                       end                                      // eventually failing to generate sample_bit in control path
                        else begin
                        start<=1'b0;
                        end
@@ -108,6 +113,7 @@ module data_path_rx #(parameter DEPTH=8,
 //------------------------------------------------------------------------------
                        
                        always@(posedge clk or posedge rst)begin
+                       stop<=0;
                        if(rst)begin
                        stop<=1'b0;
                        end
@@ -220,6 +226,7 @@ module data_path_rx #(parameter DEPTH=8,
                                 .rst_sipo(rst),
                                 .clr_shiftreg_sipo(clr_shiftreg),
                                 .clk_sipo(clk),
+                                .start_check(start_check),
                                 .bit_count_sipo(bit_count),
                                 .shift_reg_sipo(raw_byte)
                                );
@@ -322,6 +329,7 @@ module sipo_rx(
             input            clr_shiftreg_sipo,
             input            clk_sipo,
             input      [3:0] bit_count_sipo,
+            output reg       start_check,
             output reg [10:0]shift_reg_sipo      
            );
             reg sync1,sync2;
@@ -338,7 +346,7 @@ module sipo_rx(
             end
             end
 
-            always @(posedge clk_sipo or posedge rst_sipo) begin
+            always @(posedge clk_sipo or posedge rst_sipo) begin  // this block is added so that shift signal is active for only 1 cycle to avoide miltiple shifts
             if(rst_sipo)
             shift_pulse <= 1'b0;
             else
@@ -346,6 +354,7 @@ module sipo_rx(
             end
 
             always@(posedge clk_sipo or posedge rst_sipo)begin
+            start_check<=0;
             if(rst_sipo)begin
             shift_reg_sipo<=11'b0;
             end
@@ -354,6 +363,7 @@ module sipo_rx(
             end
             else if(shift_pulse && (bit_count_sipo<11))begin
             shift_reg_sipo<={serial_in,shift_reg_sipo[10:1]};
+            start_check<=1;
             end
             end
 endmodule 
